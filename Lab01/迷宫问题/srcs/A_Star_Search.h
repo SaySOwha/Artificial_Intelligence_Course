@@ -20,6 +20,7 @@ private:
     int EndX;
     int EndY;
     int Row, Column;
+    PathNode *EndNode;
 
     int GetF(int CurX, int CurY) {
         int g = static_cast<int>(abs(StartX - CurX) + abs(StartY - StartY));
@@ -34,7 +35,7 @@ private:
     list<PathNode *>
     HandleChildNode(PathNode *curMinFNode, int x, int y, list<PathNode *> OpenList, list<PathNode *> CloseList);
 
-    bool IsExistList(PathNode *child, list<PathNode *> CloseList);
+    bool IsExistList(PathNode *child, list<PathNode *> List);
 
 public:
     A_Star_Search(vector<vector<int>> Maze, int StartX, int StartY, int EndX, int EndY, int Row, int Column) {

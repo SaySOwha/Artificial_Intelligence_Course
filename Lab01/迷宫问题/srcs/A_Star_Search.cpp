@@ -27,8 +27,8 @@ bool A_Star_Search::Pass(int x, int y) {
     }
 }
 
-bool A_Star_Search::IsExistList(PathNode *child, list<PathNode *> CloseList) {
-    for (auto node:CloseList) {
+bool A_Star_Search::IsExistList(PathNode *child, list<PathNode *> List) {
+    for (auto node:List) {
         if (node->get_x() == child->get_x() && node->get_y() == child->get_y())
             return true;
     }
@@ -41,8 +41,23 @@ A_Star_Search::HandleChildNode(PathNode *curMinFNode, int x, int y, list<PathNod
                                list<PathNode *> CloseList) {
     PathNode *child;
     if (Pass(x, y)) {
-        child = new PathNode(x, y, GetF(x, y));
-        if (!IsExistList(child, CloseList) && !IsExistList(child, OpenList))//
+        child = new PathNode(x, y);
+//        child->f = GetF(EndX, EndY);
+        child->depth = curMinFNode->depth + 1;
+        child->set_f(EndX, EndY);
+        if (IsExistList(child, OpenList)) {
+            for (auto node:OpenList) {
+                if (node->get_x() == child->get_x() && node->get_y() == child->get_y()) {
+                    if (node->get_f() >
+                        curMinFNode->depth + 1 + abs(EndX - node->get_x()) + abs(EndY - node->get_y())) {
+                        node->parent = curMinFNode;
+                        node->depth = curMinFNode->depth + 1;
+                        node->set_f(EndX, EndY);
+                    }
+                    break;
+                }
+            }
+        } else if (!IsExistList(child, CloseList))
         {
             child->parent = curMinFNode;
             OpenList.push_back(child);
@@ -55,8 +70,8 @@ A_Star_Search::HandleChildNode(PathNode *curMinFNode, int x, int y, list<PathNod
 PathNode *A_Star_Search::SearchPath() {
     list<PathNode *> OpenList;
     list<PathNode *> CloseList;
-    PathNode *EndNode;
-    auto StartNode = new PathNode(StartX, StartY, 0);
+    auto StartNode = new PathNode(StartX, StartY);
+    StartNode->f = 0;
     OpenList.push_back(StartNode);
     while (!OpenList.empty()) {
         PathNode *CurMinFNode = GetMinF(OpenList);
@@ -73,10 +88,14 @@ PathNode *A_Star_Search::SearchPath() {
             EndNode = CurMinFNode;
             break;
         } else {
-            OpenList = HandleChildNode(CurMinFNode, CurMinFNode->get_x(), CurMinFNode->get_y() + 1, OpenList, CloseList);
-            OpenList = HandleChildNode(CurMinFNode, CurMinFNode->get_x() + 1, CurMinFNode->get_y(), OpenList, CloseList);
-            OpenList = HandleChildNode(CurMinFNode, CurMinFNode->get_x(), CurMinFNode->get_y() - 1, OpenList, CloseList);
-            OpenList = HandleChildNode(CurMinFNode, CurMinFNode->get_x() - 1, CurMinFNode->get_y(), OpenList, CloseList);
+            OpenList = HandleChildNode(CurMinFNode, CurMinFNode->get_x(), CurMinFNode->get_y() + 1, OpenList,
+                                       CloseList);
+            OpenList = HandleChildNode(CurMinFNode, CurMinFNode->get_x() + 1, CurMinFNode->get_y(), OpenList,
+                                       CloseList);
+            OpenList = HandleChildNode(CurMinFNode, CurMinFNode->get_x(), CurMinFNode->get_y() - 1, OpenList,
+                                       CloseList);
+            OpenList = HandleChildNode(CurMinFNode, CurMinFNode->get_x() - 1, CurMinFNode->get_y(), OpenList,
+                                       CloseList);
         }
     }
 
